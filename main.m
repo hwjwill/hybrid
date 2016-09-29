@@ -14,8 +14,8 @@ end
 %% Part 1: Hybrid Images
 if part == 1
     % read images and convert to single format
-    im1 = im2single(imread('./cat.jpg'));
-    im2 = im2single(imread('./tiger.jpg'));
+    im1 = im2single(imread('./trump.jpg'));
+    im2 = im2single(imread('./skeleton.jpg'));
 %    im1 = rgb2gray(im1); % convert to grayscale
 %    im2 = rgb2gray(im2);
     
@@ -25,11 +25,11 @@ if part == 1
     % uncomment this when debugging hybridImage so that you don't have to keep aligning
     % keyboard; 
 
-    cutoff_low = 5;
-    cutoff_high = 3; 
+    cutoff_low = 2;
+    cutoff_high = 1;
     im12 = hybridImage(im1, im2, cutoff_low, cutoff_high);
     imshow(im12);
-
+    imwrite(im12, 'trumpSkeleton.jpg');
 %     %% Crop resulting image (optional)
 %     figure(1), hold off, imagesc(im12), axis image, colormap gray
 %     disp('input crop points');
@@ -42,12 +42,25 @@ if part == 1
     % pyramids(im12, N);
 
 end
+%% Part 2
+if part == 2
+    
+end
 end
 
 %% hybrid Image implementation
 function [result] = hybridImage(im1, im2, cutoff_low, cutoff_high)
 lowPassed = imgaussfilt(im1, cutoff_low);
 highPassed = im2 - imgaussfilt(im2, cutoff_high);
-
+%highPassed = cat(3, highPassed, highPassed, highPassed);
+%lowPassed = cat(3, lowPassed, lowPassed, lowPassed);
 result = (lowPassed + highPassed) ./ 2;
+end
+
+
+function [f]=gaussian2d(N,sigma)
+  % N is grid size, sigma speaks for itself
+ [x y]=meshgrid(round(-N/2):round(N/2), round(-N/2):round(N/2));
+ f=exp(-x.^2/(2*sigma^2)-y.^2/(2*sigma^2));
+ f=f./sum(f(:));
 end
