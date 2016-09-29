@@ -1,12 +1,12 @@
 function [] = main()
 %% Change part number to test different part of this assignment
-part = 1;
+part = 2;
 %% Part 0: Sharpen
 if part == 0
     sigma = 10;
     alpha = 2;
-    original = imread('Gugong.jpg');
-    lowFiltered = imgaussfilt(original, sigma);
+    original = im2single(imread('Gugong.jpg'));
+    lowFiltered = myGaussFilt(original, sigma);
     detail = original - lowFiltered;
     sharpened = original + alpha * detail;
     imwrite(sharpened, 'sharpenedGugong.jpg');
@@ -14,10 +14,10 @@ end
 %% Part 1: Hybrid Images
 if part == 1
     % read images and convert to single format
-    im1 = im2single(imread('./trump.jpg'));
-    im2 = im2single(imread('./skeleton.jpg'));
-%    im1 = rgb2gray(im1); % convert to grayscale
-%    im2 = rgb2gray(im2);
+    im1 = im2single(imread('./funny.jpg'));
+    im2 = im2single(imread('./cry.jpg'));
+ %   im1 = rgb2gray(im1); % convert to grayscale
+ %   im2 = rgb2gray(im2);
     
     % use this if you want to align the two images (e.g., by the eyes) and crop
     % them to be of same size
@@ -25,11 +25,10 @@ if part == 1
     % uncomment this when debugging hybridImage so that you don't have to keep aligning
     % keyboard; 
 
-    cutoff_low = 2;
-    cutoff_high = 1;
+    cutoff_low = 3;
+    cutoff_high = 4;
     im12 = hybridImage(im1, im2, cutoff_low, cutoff_high);
     imshow(im12);
-    imwrite(im12, 'trumpSkeleton.jpg');
 %     %% Crop resulting image (optional)
 %     figure(1), hold off, imagesc(im12), axis image, colormap gray
 %     disp('input crop points');
@@ -44,23 +43,56 @@ if part == 1
 end
 %% Part 2
 if part == 2
-    
+N = 4; % number of pyramid levels (you may use more or fewer, as needed)
+im12 = im2single(imread('./lincoln.jpg'));
+im12 = rgb2gray(im12);
+pyramids(im12, N);
 end
 end
 
-%% hybrid Image implementation
+%% Implementations
 function [result] = hybridImage(im1, im2, cutoff_low, cutoff_high)
-lowPassed = imgaussfilt(im1, cutoff_low);
-highPassed = im2 - imgaussfilt(im2, cutoff_high);
-%highPassed = cat(3, highPassed, highPassed, highPassed);
-%lowPassed = cat(3, lowPassed, lowPassed, lowPassed);
+im1r = im1(:, :, 1);
+im1g = im1(:, :, 2);
+im1b = im1(:, :, 3);
+
+im2r = im2(:, :, 1);
+im2g = im2(:, :, 2);
+im2b = im2(:, :, 3);
+lowPassedr = myGaussFilt(im1r, cutoff_low);
+highPassedr = im2r - myGaussFilt(im2r, cutoff_high);
+lowPassedg = myGaussFilt(im1g, cutoff_low);
+highPassedg = im2g - myGaussFilt(im2g, cutoff_high);
+lowPassedb = myGaussFilt(im1b, cutoff_low);
+highPassedb = im2b - myGaussFilt(im2b, cutoff_high);
+highPassed = cat(3, highPassedr, highPassedg, highPassedb);
+lowPassed = cat(3, lowPassedr, lowPassedg, lowPassedb);
 result = (lowPassed + highPassed) ./ 2;
 end
 
+function [] = pyramids(img, N)
+i = 1;
+sigma = 1;
+while i < N + 1
+   figure(i);
+   low = myGaussFilt(img, sigma);
+   sigma = sigma * 2;
+   imshow(low);
+   figure(i + N);
+   high = img - low;
+   imshow(high);
+   i = i + 1;
+end
+end
 
-function [f]=gaussian2d(N,sigma)
-  % N is grid size, sigma speaks for itself
- [x y]=meshgrid(round(-N/2):round(N/2), round(-N/2):round(N/2));
- f=exp(-x.^2/(2*sigma^2)-y.^2/(2*sigma^2));
- f=f./sum(f(:));
+%% Helper functions
+function [f]= myGaussFilt(img, sigma)
+f = conv2(img, gaussian2d(sigma), 'same');
+end
+
+function [f] = gaussian2d(sigma)
+N = sigma * 2;
+[x, y] = meshgrid(round(-N/2):round(N/2), round(-N/2):round(N/2));
+f = exp(-x.^2/(2*sigma^2) - y.^2 / (2*sigma^2));
+f = f ./ sum(f(:));
 end
