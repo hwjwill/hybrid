@@ -47,8 +47,8 @@ end
 
 %% Part 3
 if part == 3
-    im1 = im2single(imread('./apple.jpg'));
-    im2 = im2single(imread('./orange.jpg'));
+    im1 = im2single(imread('./darth.jpg'));
+    im2 = im2single(imread('./anakin.jpg'));
 %     im1 = rgb2gray(im1); % convert to grayscale
 %     im2 = rgb2gray(im2);
     mask = zeros(size(im1(:, :, 1)));
@@ -125,6 +125,7 @@ for a = 1:N
     low2b = myGaussFilt(im2b, sigma);
     
     tempMask1 = myGaussFilt(mask1, sigma);
+
     tempMask2 = myGaussFilt(mask2, sigma);
     
     sigma = sigma * 2;
@@ -136,6 +137,13 @@ for a = 1:N
     
     high1b = lowIm1b - low1b;
     high2b = lowIm2b - low2b;
+    
+    resultTemp = cat(3, high1r, high1g, high1b);
+    resultTemp2 = cat(3, high2r, high2g, high2b);
+    figure(a);
+    imshow(imadjust(rgb2gray(resultTemp)));
+    figure(a+N);
+    imshow(imadjust(rgb2gray(resultTemp2)));
     
     lowIm1r = low1r;
     lowIm2r = low2r;
@@ -154,7 +162,8 @@ resultr = resultr + low1r .* tempMask1 + low2r .* tempMask2;
 resultg = resultg + low1g .* tempMask1 + low2g .* tempMask2;
 resultb = resultb + low1b .* tempMask1 + low2b .* tempMask2;
 result = cat(3, resultr, resultg, resultb);
-imshow(result);
+%imwrite(result, 'darthSkywalker.jpg');
+%imshow(result);
 end
 
 %% Helper functions
