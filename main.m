@@ -49,9 +49,9 @@ end
 if part == 3
     im1 = im2single(imread('./apple.jpg'));
     im2 = im2single(imread('./orange.jpg'));
-    im1 = rgb2gray(im1); % convert to grayscale
-    im2 = rgb2gray(im2);
-    mask = zeros(size(im1));
+%     im1 = rgb2gray(im1); % convert to grayscale
+%     im2 = rgb2gray(im2);
+    mask = zeros(size(im1(:, :, 1)));
     mask(:, 1:size(im1, 2) / 2) = 1;
     blend(im1, im2, mask);
 end
@@ -96,41 +96,70 @@ end
 end
 
 function [] = blend(im1, im2, mask1)
+im1r = im1(:, :, 1);
+im1g = im1(:, :, 2);
+im1b = im1(:, :, 3);
+im2r = im2(:, :, 1);
+im2g = im2(:, :, 2);
+im2b = im2(:, :, 3);
 mask2 = ones(size(mask1)) - mask1;
 N = 5;
-lowIm1 = im1;
-lowIm2 = im2;
+lowIm1r = im1r;
+lowIm1g = im1g;
+lowIm1b = im1b;
+lowIm2r = im2r;
+lowIm2g = im2g;
+lowIm2b = im2b;
 sigma = 1;
-result = zeros(size(im1));
+resultr = zeros(size(im1r));
+resultg = zeros(size(im1g));
+resultb = zeros(size(im1b));
 for a = 1:N
-    low1 = myGaussFilt(im1, sigma);
-    low2 = myGaussFilt(im2, sigma);
+    low1r = myGaussFilt(im1r, sigma);
+    low2r = myGaussFilt(im2r, sigma);
+    
+    low1g = myGaussFilt(im1g, sigma);
+    low2g = myGaussFilt(im2g, sigma);
+    
+    low1b = myGaussFilt(im1b, sigma);
+    low2b = myGaussFilt(im2b, sigma);
+    
     tempMask1 = myGaussFilt(mask1, sigma);
     tempMask2 = myGaussFilt(mask2, sigma);
+    
     sigma = sigma * 2;
-    high1 = lowIm1 - low1;
-    high2 = lowIm2 - low2;
-    lowIm1 = low1;
-    lowIm2 = low2;
-    result = result + high1 .* tempMask1 + high2 .* tempMask2;
+    high1r = lowIm1r - low1r;
+    high2r = lowIm2r - low2r;
+    
+    high1g = lowIm1g - low1g;
+    high2g = lowIm2g - low2g;
+    
+    high1b = lowIm1b - low1b;
+    high2b = lowIm2b - low2b;
+    
+    lowIm1r = low1r;
+    lowIm2r = low2r;
+    
+    lowIm1g = low1g;
+    lowIm2g = low2g;
+
+    lowIm1b = low1b;
+    lowIm2b = low2b;
+    
+    resultr = resultr + high1r .* tempMask1 + high2r .* tempMask2;
+    resultg = resultg + high1g .* tempMask1 + high2g .* tempMask2;
+    resultb = resultb + high1b .* tempMask1 + high2b .* tempMask2;
 end
-result = result + low1 .* tempMask1 + low2 .* tempMask2;
+resultr = resultr + low1r .* tempMask1 + low2r .* tempMask2;
+resultg = resultg + low1g .* tempMask1 + low2g .* tempMask2;
+resultb = resultb + low1b .* tempMask1 + low2b .* tempMask2;
+result = cat(3, resultr, resultg, resultb);
 imshow(result);
 end
 
 %% Helper functions
 function [f]= myGaussFilt(img, sigma)
 f = conv2(img, gaussian2d(sigma), 'same');
-end
-
-function [f] = myGaussFiltRGB(img, sigma)
-imgr = img(:, :, 1);
-imgg = img(:, :, 2);
-imgb = img(:, :, 3);
-fr = conv2(imgr, gaussian2d(sigma), 'same');
-fg = conv2(imgg, gaussian2d(sigma), 'same');
-fb = conv2(imgb, gaussian2d(sigma), 'same');
-f = cat(3, fr, fg, fb);
 end
 
 function [f] = gaussian2d(sigma)
