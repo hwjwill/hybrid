@@ -96,7 +96,9 @@ end
 end
 
 function [] = blend(im1, im2, mask1)
-mask2 = ones(size(mask1)) - mask1;
+mask2 = ones(size()) - mask1;
+temp1 = im1 .* mask1;
+temp2 = im2 .* mask2;
 N = 5;
 lowIm1 = im1;
 lowIm2 = im2;
@@ -114,23 +116,13 @@ for a = 1:N
     lowIm2 = low2;
     result = result + high1 .* tempMask1 + high2 .* tempMask2;
 end
-result = result + low1 .* tempMask1 + low2 .* tempMask2;
+result = result + temp1 + temp2;
 imshow(result);
 end
 
 %% Helper functions
 function [f]= myGaussFilt(img, sigma)
 f = conv2(img, gaussian2d(sigma), 'same');
-end
-
-function [f] = myGaussFiltRGB(img, sigma)
-imgr = img(:, :, 1);
-imgg = img(:, :, 2);
-imgb = img(:, :, 3);
-fr = conv2(imgr, gaussian2d(sigma), 'same');
-fg = conv2(imgg, gaussian2d(sigma), 'same');
-fb = conv2(imgb, gaussian2d(sigma), 'same');
-f = cat(3, fr, fg, fb);
 end
 
 function [f] = gaussian2d(sigma)
