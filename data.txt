@@ -1,4 +1,0 @@
-Part 1
-tiger + cat
-Sigma low = 3
-Sigma high = 4 
