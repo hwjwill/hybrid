@@ -2,7 +2,7 @@
 
 This project explores the effects with manipulating frequencies of pictures. Part 0 sharpens a gray scale image; part 1 hybrids images such that it appears differently when looking from close or far; part 2 displays laplacian stack of image in part 1 to illustrate the effects; part 3 combines two image in seamless way. Fore more results: http://inst.eecs.berkeley.edu/~cs194-26/fa16/upload/files/proj3/cs194-26-acm/
 
-![Example](hhttp://i.imgur.com/K8TiO6k.jpg)
+![Example](http://i.imgur.com/K8TiO6k.jpg)
 
 # To run code
 ```
